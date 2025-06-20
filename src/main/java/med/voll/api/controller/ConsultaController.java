@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import med.voll.api.domain.consulta.AgendaConsultas;
 import med.voll.api.domain.consulta.DadosAgendamentoConsulta;
-import med.voll.api.domain.consulta.DadosDetalhamentoConsulta;
 
 @RestController
 @RequestMapping("consultas")
