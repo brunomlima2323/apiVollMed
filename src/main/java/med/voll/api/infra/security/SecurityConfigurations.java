@@ -29,7 +29,8 @@ public class SecurityConfigurations {
 	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers(HttpMethod.POST, "/login").permitAll() //Estou dizendo ao spring que essa chamada vou permitir sem autenticação
-	            .anyRequest().authenticated() //Aqui informo que todas as outras chamadas vou solicitar autenticação
+				.requestMatchers( "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll() // Quando coloco "/**" eu informo que está liberada também para os sub endereços
+				.anyRequest().authenticated() //Aqui informo que todas as outras chamadas vou solicitar autenticação
 	        )
 	        .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
 	        .build();
