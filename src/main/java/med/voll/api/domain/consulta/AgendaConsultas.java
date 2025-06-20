@@ -26,21 +26,27 @@ public class AgendaConsultas {
 	@Autowired
 	private List<ValidadorAgendamentoDeConsulta> validadores;
 
-	public void agendar(DadosAgendamentoConsulta dados) {
+	public DadosDetalhamentoConsulta agendar(DadosAgendamentoConsulta dados) {
 		if(!pacienteRepository.existsById( dados.idPaciente() ) ) {
 			throw new ValidacaoExecption("Id do paciente informado não existe!");
 		}
 		
-		if(dados.idMedico() != null && !medicoRepository.existsById( dados.idPaciente() ) ) {
-			throw new ValidacaoExecption("Id do paciente informado não existe!");
+		if(dados.idMedico() != null && !medicoRepository.existsById( dados.idMedico() ) ) {
+			throw new ValidacaoExecption("Id do médico informado não existe!");
 		}
 
 		validadores.forEach(v -> v.validar(dados));
 
 		var paciente = pacienteRepository.getReferenceById(dados.idPaciente());
 		var medico = escolherMedico(dados);
-		var consulta = new Consulta(null,medico,paciente,dados.data());
+		if (medico == null) {
+			throw new ValidacaoExecption("Não existe médico disponível nessa data!");
+		}
+
+		var consulta = new Consulta(null, medico, paciente, dados.data());
 		consultaRepository.save(consulta);
+
+		return new DadosDetalhamentoConsulta(consulta);
 	}
 	
 	
@@ -50,9 +56,13 @@ public class AgendaConsultas {
 		}
 		
 		if(dados.especialidade() == null) {
-			throw new ValidacaoExecption("Espeialidade é obrigatória quando o médico não for esclolhido!");
+			throw new ValidacaoExecption("Especialidade é obrigatória quando o médico não for esclolhido!");
 		}
 		
 		return medicoRepository.escolherMedicoAleatorioLivreNaData(dados.especialidade(),dados.data());
+	}
+
+	public void cancelar(Long id) {
+		consultaRepository.findById(id).orElseThrow(() -> new ValidacaoExecption("Agendamento id: "+id + " não existe!"));
 	}
 }
